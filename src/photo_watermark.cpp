@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <QImage>
+#include <QImageReader>
 #include <QPainter>
 #include <QDebug>
 
@@ -147,8 +148,9 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
         qWarning() << "Parse " << image_path.c_str() << " exif failed.";
         return false;
     }
-
-    QImage source_img(QString(image_path.c_str()));
+    QImageReader image_reader(image_path.c_str());
+    image_reader.setAutoTransform(true);
+    QImage source_img = image_reader.read();
 
     if (source_img.isNull())
     {
@@ -373,7 +375,9 @@ void PhotoWaterMarkWork::PaintRightBottom(QPainter * painter, QString & str, QFo
 void PhotoWaterMarkWork::PaintLogo(QPainter * painter, const QString & file_path,
                                    int source_height, int font_box_height, int font_box_left, int box_size) const
 {
-    QImage img(file_path);
+    QImageReader image_reader(file_path);
+    image_reader.setAutoTransform(true);
+    QImage img = image_reader.read();
 
     int img_h = static_cast<int>(font_box_height * 0.85);
     int img_w = img.scaledToHeight(img_h).width();
