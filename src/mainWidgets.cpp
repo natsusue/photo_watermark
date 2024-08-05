@@ -49,7 +49,6 @@ mainWidgets::mainWidgets(QWidget * parent)
                 QFontDatabase::applicationFontFamilies(id);
         }
     }
-    qDebug() << QFontDatabase::families();
     QFont f("MiSans Latin");
     ui_.fontComboBox->setCurrentFont(f);
 
