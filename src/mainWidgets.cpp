@@ -110,7 +110,7 @@ void mainWidgets::OnStartBtnClick()
     if (p.right_bottom_choice == TextChoice::kCustomString)
         p.right_bottom_custom = ui_.rightBottomEdit->text().toStdString();
 
-
+    work_.Clean();
     if (!work_.Init(p, cb_))
     {
         QMessageBox::warning(this, QStringLiteral("处理失败"), QStringLiteral("请检查参数"));
@@ -118,6 +118,7 @@ void mainWidgets::OnStartBtnClick()
     }
 
     work_.WorkStart();
+    ui_.startButton->setEnabled(false);
 }
 
 void mainWidgets::OnInputBtnClick()
@@ -151,6 +152,7 @@ void mainWidgets::OnProcessComplete(int total, int failed)
     QString ss = QString::asprintf("处理完成\n共计处理%d张图片\n失败%d张", total, failed);
     QMessageBox::information(this, QStringLiteral("处理结果"), ss);
     ui_.workStatus->setText(QStringLiteral("处理未开始"));
+    ui_.startButton->setEnabled(true);
 }
 
 void mainWidgets::MainWidgetsProgressCallback(int cur, int failed, int total, bool done)

@@ -97,6 +97,9 @@ void PhotoWaterMarkWork::Clean()
         return;
     param_ = WaterMarkParam();
     input_files_.clear();
+    logo_map_.clear();
+    if (thread_.joinable())
+        thread_.join();
 }
 
 void PhotoWaterMarkWork::Work()
