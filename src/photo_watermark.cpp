@@ -236,15 +236,21 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
 
     // logo 和 线
     int font_height = ex_padding + second_fm.height();
-
-    auto found = std::find_if(logo_map_.begin(), logo_map_.end(),
-                              [&exif](const std::pair<std::string, std::string> & ele)-> bool
-                              {
-                                  return 0 == strncasecmp(exif.Make.c_str(), ele.first.c_str(),
-                                                          std::min(exif.Make.size(), ele.first.size()));
-                              });
-    if (found != logo_map_.end())
-        PaintLogo(&img_painter, found->second.c_str(), source_img.height(), font_height, r_left_padding, border_size);
+    std::string logo_choice = exif.Make;
+    if (param_.logo != "Auto" && !param_.logo.empty())
+        logo_choice = param_.logo;
+    if (!logo_choice.empty())
+    {
+        auto found = std::find_if(logo_map_.begin(), logo_map_.end(),
+                                  [&exif, &logo_choice](const std::pair<std::string, std::string> & ele)-> bool
+                                  {
+                                      return 0 == strncasecmp(logo_choice.c_str(), ele.first.c_str(),
+                                                              std::min(logo_choice.size(), ele.first.size()));
+                                  });
+        if (found != logo_map_.end())
+            PaintLogo(&img_painter, found->second.c_str(), source_img.height(), font_height, r_left_padding, border_size);
+    }
+   
     img_painter.end();
 
     std::filesystem::path out_file(param_.output_path);
