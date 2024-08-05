@@ -159,7 +159,8 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
     }
 
     // 新建图片
-    int border_size = static_cast<int>(static_cast<float>(source_img.width()) * param_.border_ratio);
+    //TODO 若横竖比过大, 可能导致比例失调
+    int border_size = static_cast<int>(static_cast<float>(std::max(source_img.width(), source_img.height()) * param_.border_ratio));
     int new_image_width = 0;
     int new_image_height = 0;
     if (param_.add_frame)
