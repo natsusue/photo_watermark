@@ -9,6 +9,7 @@
 #include <QImageReader>
 #include <QPainter>
 #include <QDebug>
+#include <QBuffer>
 
 #if defined(WIN32) || defined(_WIN32)
 #ifndef strcasecmp
@@ -134,21 +135,31 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
         qWarning() << "Open " << image_path.c_str() << "failed.";
         return false;
     }
-    std::string image_data;
+    //std::string image_data;
     ifs.seekg(0, std::ios::end);
-    image_data.resize(ifs.tellg());
+    const qsizetype file_size = ifs.tellg();
+    QByteArray image_data(file_size, 0);
+    if (image_data.isNull())
+    {
+        qWarning() << "Create " << ifs.tellg() << " bytes buffer failed.";
+        return false;
+    }
     ifs.seekg(0, std::ios::beg);
-    ifs.read(&image_data[0], image_data.size());
+    ifs.read(image_data.data(), file_size);
     ifs.close();
 
     easyexif::EXIFInfo exif;
     exif.clear();
-    if (PARSE_EXIF_SUCCESS != exif.parseFrom(image_data))
+    if (PARSE_EXIF_SUCCESS != exif.parseFrom(reinterpret_cast<unsigned char *>(image_data.data()), static_cast<unsigned>(file_size)))
     {
         qWarning() << "Parse " << image_path.c_str() << " exif failed.";
         return false;
     }
-    QImageReader image_reader(image_path.c_str());
+
+    QBuffer buffer;
+    buffer.setData(image_data);
+    buffer.open(QIODevice::ReadOnly);
+    QImageReader image_reader(&buffer);
     image_reader.setAutoTransform(true);
     QImage source_img = image_reader.read();
 
@@ -255,7 +266,7 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
 
     std::filesystem::path out_file(param_.output_path);
     out_file /= std::filesystem::path(image_path).filename();
-    img.save(QString::fromStdString(out_file.string()));
+    img.save(QString::fromLocal8Bit(out_file.string().data(), out_file.string().size()));
 
     return true;
 }
