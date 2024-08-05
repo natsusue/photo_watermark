@@ -148,7 +148,8 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
         return false;
     }
 
-    QImage source_img(QString::fromStdString(image_path));
+    QImage source_img(QString(image_path.c_str()));
+
     if (source_img.isNull())
     {
         qWarning() << "QImage open" << image_path.c_str() << "failed.";
@@ -274,17 +275,17 @@ QString PhotoWaterMarkWork::genText(TextChoice & choice, easyexif::EXIFInfo & ex
     switch (choice)
     {
     case TextChoice::kModel:
-        ss = QString::fromStdString(exif.Model);
+        ss = QString(exif.Model.c_str());
         break;
     case TextChoice::kLensModel:
-        ss = QString::fromStdString(exif.LensInfo.Model);
+        ss = QString(exif.LensInfo.Model.c_str());
         break;
     case TextChoice::kExposureParam:
         ss = QString::asprintf("%dmm ISO%d 1/%d f/%.1lf", exif.FocalLengthIn35mm,
                                exif.ISOSpeedRatings, num, exif.FNumber);
         break;
     case TextChoice::kData:
-        ss = QString::fromStdString(exif.DateTime);
+        ss = QString(exif.DateTime.c_str());
     }
     return ss;
 }
