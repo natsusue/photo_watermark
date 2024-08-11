@@ -13,6 +13,22 @@
 
 using progress_callback = std::function<void(int cur, int failed, int total, bool done)>;
 
+using TextPosition = enum class TextPosition
+{
+    kLeftTop,
+    kRightTop,
+    kLeftBottom,
+    kRightBottom,
+};
+
+using TextSetting = struct TextSetting
+{
+    TextChoice text_type;
+    QString custom_data;
+    QFont::Weight weight;
+    bool bold;
+};
+
 using WaterMarkParam = struct WaterMarkParam
 {
     std::string input_path;

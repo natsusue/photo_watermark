@@ -52,37 +52,30 @@ mainWidgets::mainWidgets(QWidget * parent)
     QFont f("MiSans Latin");
     ui_.fontComboBox->setCurrentFont(f);
 
-    // 左上初始化
-    ui_.leftTopComboBox->addItems(set_combox_items);
-    ui_.leftTopComboBox->setCurrentIndex(static_cast<int>(TextChoice::kModel));
-    ui_.leftTopEdit->setText(QStringLiteral("例: \"Nikon Z9\" 若需要编辑请选择自定义字符串模式 "));
-    ui_.leftTopEdit->setEnabled(false);
-    connect(ui_.leftTopComboBox, &QComboBox::currentIndexChanged,
-            this, [this](int x) { OnComboBoxChanged(x, ui_.leftTopEdit); });
+    ui_.LTChoice->addItems(set_combox_items);
+    ui_.LBChoice->addItems(set_combox_items);
+    ui_.RTChoice->addItems(set_combox_items);
+    ui_.RBChoice->addItems(set_combox_items);
+
+    ui_.LTChoice->setCurrentIndex(static_cast<int>(TextChoice::kModel));
+    ui_.LBChoice->setCurrentIndex(static_cast<int>(TextChoice::kLensModel));
+    ui_.RTChoice->setCurrentIndex(static_cast<int>(TextChoice::kExposureParam));
+    ui_.RBChoice->setCurrentIndex(static_cast<int>(TextChoice::kData));
+
+    connect(ui_.LTChoice, &QComboBox::currentIndexChanged,
+            this, [this](int x) { OnComboBoxChanged(x, ui_.LTEdit); });
     // 左下初始化
-    ui_.leftBottomComboBox->addItems(set_combox_items);
-    ui_.leftBottomComboBox->setCurrentIndex(static_cast<int>(TextChoice::kLensModel));
-    ui_.leftBottomEdit->setText(QStringLiteral("例: \"Nikkor 58mm f/0.95\" 若需要编辑请选择自定义字符串模式 "));
-    ui_.leftBottomEdit->setEnabled(false);
-    connect(ui_.leftBottomComboBox, &QComboBox::currentIndexChanged,
-            this, [this](int x) { OnComboBoxChanged(x, ui_.leftBottomEdit); });
+    connect(ui_.LBChoice, &QComboBox::currentIndexChanged,
+            this, [this](int x) { OnComboBoxChanged(x, ui_.LBEdit); });
     // 右上初始化
-    ui_.rightTopcomboBox->addItems(set_combox_items);
-    ui_.rightTopcomboBox->setCurrentIndex(static_cast<int>(TextChoice::kExposureParam));
-    ui_.rightTopEdit->setText(QStringLiteral("例: \"58mm ISO100 1/100 f/1.2\" 若需要编辑请选择自定义字符串模式 "));
-    ui_.rightTopEdit->setEnabled(false);
-    connect(ui_.rightTopcomboBox, &QComboBox::currentIndexChanged,
-            this, [this](int x) { OnComboBoxChanged(x, ui_.rightTopEdit); });
+    connect(ui_.RTChoice, &QComboBox::currentIndexChanged,
+            this, [this](int x) { OnComboBoxChanged(x, ui_.RTEdit); });
     // 右下初始化
-    ui_.rightBottomComboBox->addItems(set_combox_items);
-    ui_.rightBottomComboBox->setCurrentIndex(static_cast<int>(TextChoice::kData));
-    ui_.rightBottomEdit->setText(QStringLiteral("若需要编辑请选择自定义字符串模式 "));
-    ui_.rightBottomEdit->setEnabled(false);
-    connect(ui_.rightBottomComboBox, &QComboBox::currentIndexChanged,
-            this, [this](int x) { OnComboBoxChanged(x, ui_.rightBottomEdit); });
+    connect(ui_.RBChoice, &QComboBox::currentIndexChanged,
+            this, [this](int x) { OnComboBoxChanged(x, ui_.RBEdit); });
 
     cb_ = [this](int cur, int failed, int total, bool done)
-    {
+        {
         MainWidgetsProgressCallback(cur, failed, total, done);
     };
 }
@@ -97,18 +90,33 @@ void mainWidgets::OnStartBtnClick()
     p.logo = ui_.logoComboBox->currentText().toStdString();
     p.add_frame = ui_.addFrameCheckBox->checkState() == Qt::Checked;
 
-    p.left_top_choice = static_cast<TextChoice>(ui_.leftTopComboBox->currentIndex());
-    if (p.left_top_choice == TextChoice::kCustomString)
-        p.left_top_custom = ui_.leftTopEdit->text().toStdString();
-    p.right_top_choice = static_cast<TextChoice>(ui_.rightTopcomboBox->currentIndex());
-    if (p.right_top_choice == TextChoice::kCustomString)
-        p.right_top_custom = ui_.rightTopEdit->text().toStdString();
-    p.left_bottom_choice = static_cast<TextChoice>(ui_.leftBottomComboBox->currentIndex());
-    if (p.left_bottom_choice == TextChoice::kCustomString)
-        p.left_bottom_custom = ui_.leftBottomEdit->text().toStdString();
-    p.right_bottom_choice = static_cast<TextChoice>(ui_.rightBottomComboBox->currentIndex());
-    if (p.right_bottom_choice == TextChoice::kCustomString)
-        p.right_bottom_custom = ui_.rightBottomEdit->text().toStdString();
+    auto & lt_setting = p.text_settings[TextPosition::kLeftTop];
+    lt_setting.bold = ui_.LTBold->isChecked();
+    lt_setting.text_type = static_cast<TextChoice>(ui_.LTChoice->currentIndex());
+    lt_setting.weight = static_cast<QFont::Weight>(ui_.LTWeight->currentIndex());
+    if (lt_setting.text_type == TextChoice::kCustomString)
+        lt_setting.custom_data = ui_.LTEdit->text();
+
+    auto & rt_setting = p.text_settings[TextPosition::kRightTop];
+    rt_setting.bold = ui_.RTBold->isChecked();
+    rt_setting.text_type = static_cast<TextChoice>(ui_.RTChoice->currentIndex());
+    rt_setting.weight = static_cast<QFont::Weight>(ui_.RTWeight->currentIndex());
+    if (rt_setting.text_type == TextChoice::kCustomString)
+        rt_setting.custom_data = ui_.RTEdit->text();
+
+    auto & lb_setting = p.text_settings[TextPosition::kLeftBottom];
+    lb_setting.bold = ui_.LBBold->isChecked();
+    lb_setting.text_type = static_cast<TextChoice>(ui_.LBChoice->currentIndex());
+    lb_setting.weight = static_cast<QFont::Weight>(ui_.LBWeight->currentIndex());
+    if (lb_setting.text_type == TextChoice::kCustomString)
+        lb_setting.custom_data = ui_.LBEdit->text();
+
+    auto & rb_setting = p.text_settings[TextPosition::kRightBottom];
+    rb_setting.bold = ui_.RBBold->isChecked();
+    rb_setting.text_type = static_cast<TextChoice>(ui_.RBChoice->currentIndex());
+    rb_setting.weight = static_cast<QFont::Weight>(ui_.RBWeight->currentIndex());
+    if (rb_setting.text_type == TextChoice::kCustomString)
+        rb_setting.custom_data = ui_.RBEdit->text();
 
     work_.Clean();
     if (!work_.Init(p, cb_))
