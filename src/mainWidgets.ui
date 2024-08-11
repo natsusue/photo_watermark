@@ -6,193 +6,286 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>400</height>
+    <width>890</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>相框水印设置</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,1,0">
    <item>
-    <layout class="QHBoxLayout" name="baseConfigLayout">
-     <item>
-      <layout class="QVBoxLayout" name="baseSeetingLayout" stretch="0,0,0,0,0,0,0">
-       <item>
-        <widget class="QLabel" name="fontLabel">
-         <property name="text">
-          <string>字体</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QFontComboBox" name="fontComboBox"/>
-       </item>
-       <item>
-        <widget class="QLabel" name="boxSizeLabel">
-         <property name="text">
-          <string>边框比例</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="boxSizeComboBox"/>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>logo选择</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="logoComboBox"/>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="addFrameCheckBox">
-         <property name="text">
-          <string>添加相框</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="ioLayout">
-       <item>
-        <layout class="QHBoxLayout" name="InputLayout">
-         <item>
-          <widget class="QPushButton" name="inputButton">
-           <property name="text">
-            <string>输入文件夹</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lnputEdit"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="outputLayout">
-         <item>
-          <widget class="QPushButton" name="outputButton">
-           <property name="text">
-            <string>输出文件夹</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="outputEdit"/>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    <widget class="QWidget" name="seetingWidget" native="true">
+     <layout class="QHBoxLayout" name="baseConfigLayout">
+      <item>
+       <layout class="QVBoxLayout" name="baseSeetingLayout" stretch="0,0,0,0,0,0,0">
+        <item>
+         <widget class="QLabel" name="fontLabel">
+          <property name="text">
+           <string>字体</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFontComboBox" name="fontComboBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="boxSizeLabel">
+          <property name="text">
+           <string>边框比例</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="boxSizeComboBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>logo选择</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="logoComboBox"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="addFrameCheckBox">
+          <property name="text">
+           <string>添加相框</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="ioLayout">
+        <item>
+         <layout class="QHBoxLayout" name="InputLayout">
+          <item>
+           <widget class="QPushButton" name="inputButton">
+            <property name="text">
+             <string>输入文件夹</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lnputEdit"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="outputLayout">
+          <item>
+           <widget class="QPushButton" name="outputButton">
+            <property name="text">
+             <string>输出文件夹</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="outputEdit"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="configLayout">
-     <item>
-      <layout class="QHBoxLayout" name="leftTopConfigLayout" stretch="0,1,4">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>左上设置</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="leftTopComboBox">
-         <property name="editable">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="leftTopEdit"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="leftBottomConfigLayout" stretch="0,1,4">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>左下设置</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="leftBottomComboBox"/>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="leftBottomEdit"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="rightTopConfigLayout" stretch="0,1,4">
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>右上设置</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="rightTopcomboBox"/>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="rightTopEdit"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="rightBottomConfigLayout" stretch="0,1,4">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>右下设置</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="rightBottomComboBox"/>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="rightBottomEdit"/>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    <widget class="QWidget" name="textWidget" native="true">
+     <layout class="QVBoxLayout" name="configLayout">
+      <item>
+       <layout class="QHBoxLayout" name="leftTopConfigLayout" stretch="0,0,0,1,4">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>左上设置</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="LTWeight">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="LTBold">
+          <property name="text">
+           <string>粗体</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="LTChoice">
+          <property name="editable">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="LTEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>例: &quot;Nikon Z9&quot; 若需要编辑请选择自定义字符串模式 </string>
+          </property>
+          <property name="dragEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="rightTopConfigLayout" stretch="0,0,0,1,4">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>右上设置</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="RTWeight"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="RTBold">
+          <property name="text">
+           <string>粗体</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="RTChoice"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="RTEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>例: &quot;58mm ISO100 1/100 f/1.2&quot; 若需要编辑请选择自定义字符串模式</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="leftBottomConfigLayout" stretch="0,0,0,1,4">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>左下设置</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="LBWeight"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="LBBold">
+          <property name="text">
+           <string>粗体</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="LBChoice"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="LBEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>例: &quot;Nikkor 58mm f/0.95&quot; 若需要编辑请选择自定义字符串模式 </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="rightBottomConfigLayout" stretch="0,0,0,1,4">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>右下设置</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="RBWeight"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="RBBold">
+          <property name="text">
+           <string>粗体</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="RBChoice"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="RBEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>若需要编辑请选择自定义字符串模式</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="workStatus">
-       <property name="text">
-        <string>处理未开始</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="startButton">
-       <property name="text">
-        <string>开始</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QWidget" name="startWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="workStatus">
+        <property name="text">
+         <string>处理未开始</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="startButton">
+        <property name="text">
+         <string>开始</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
