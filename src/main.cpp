@@ -1,13 +1,16 @@
 #include <QtWidgets/QApplication>
 #include <QGuiApplication>
 #include <QDateTime>
-#include "photo_watermark.h"
+#include <QStyleFactory>
+
 #include "mainWidgets.h"
+#include "photo_watermark.h"
 
 void messageOutput(QtMsgType type, const QMessageLogContext & context, const QString & msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
-    switch (type) {
+    switch (type)
+    {
     case QtDebugMsg:
         fprintf(stderr, "[%s][Debug][[%s:%d][%s]%s\n", QDateTime::currentDateTime().toString().toUtf8().constData(),
                 context.file, context.line, context.function, localMsg.constData());
@@ -33,10 +36,11 @@ void messageOutput(QtMsgType type, const QMessageLogContext & context, const QSt
 
 int main(int argc, char * argv[])
 {
-	qInstallMessageHandler(messageOutput);
-	QApplication a(argc,argv);
-	mainWidgets main_widgets;
-	main_widgets.show();
-	a.exec();
-	return 0;
+    qInstallMessageHandler(messageOutput);
+    QApplication a(argc, argv);
+    a.setStyle(QStyleFactory::create("Fusion"));
+    mainWidgets main_widgets;
+    main_widgets.show();
+    a.exec();
+    return 0;
 }
