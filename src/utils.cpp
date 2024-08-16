@@ -1,4 +1,4 @@
-#include "utils.h"
+﻿#include "utils.h"
 
 #if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
@@ -22,6 +22,7 @@ std::filesystem::path GetSelfPath()
     ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
     return std::string(path, (count > 0)?count:0);
 #elif defined(__APPLE__)
+    // 未测试,没mac设备
     char path[PATH_MAX] = { 0 };
     uint32_t bufsize = PATH_MAX;
     if (!_NSGetExecutablePath(path, &bufsize))

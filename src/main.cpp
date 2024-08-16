@@ -1,4 +1,4 @@
-#include <QtWidgets/QApplication>
+﻿#include <QtWidgets/QApplication>
 #include <QGuiApplication>
 #include <QDateTime>
 #include <QStyleFactory>
@@ -8,6 +8,7 @@
 
 void messageOutput(QtMsgType type, const QMessageLogContext & context, const QString & msg)
 {
+#if _DEBUG
     QByteArray localMsg = msg.toLocal8Bit();
     switch (type)
     {
@@ -32,11 +33,14 @@ void messageOutput(QtMsgType type, const QMessageLogContext & context, const QSt
                 context.file, context.line, context.function, localMsg.constData());
         abort();
     }
+#endif
 }
 
 int main(int argc, char * argv[])
 {
+#if _DEBUG
     qInstallMessageHandler(messageOutput);
+#endif
     QApplication a(argc, argv);
     a.setStyle(QStyleFactory::create("Fusion"));
     mainWidgets main_widgets;
