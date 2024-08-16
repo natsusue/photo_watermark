@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <filesystem>
 #include <iostream>
+#include <ObjectArray.h>
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -16,10 +17,22 @@ static QStringList set_combox_items = {
     QStringLiteral("自定义字符串")
 };
 
+static QStringList font_weight_items = {
+    QStringLiteral("Thin"),
+    QStringLiteral("ExtraLight"),
+    QStringLiteral("Light"),
+    QStringLiteral("Normal"),
+    QStringLiteral("Medium"),
+    QStringLiteral("DemiBold"),
+    QStringLiteral("Bold"),
+    QStringLiteral("ExtraBold"),
+    QStringLiteral("Black")
+};
+
 mainWidgets::mainWidgets(QWidget * parent)
 {
     ui_.setupUi(this);
-    this->resize(715, 400);
+    this->resize(800, 445);
     connect(ui_.inputButton, &QPushButton::clicked, this, &mainWidgets::OnInputBtnClick);
     connect(ui_.outputButton, &QPushButton::clicked, this, &mainWidgets::OnOutputBtnClick);
     connect(ui_.startButton, &QPushButton::clicked, this, &mainWidgets::OnStartBtnClick);
@@ -53,14 +66,24 @@ mainWidgets::mainWidgets(QWidget * parent)
     ui_.fontComboBox->setCurrentFont(f);
 
     ui_.LTChoice->addItems(set_combox_items);
-    ui_.LBChoice->addItems(set_combox_items);
-    ui_.RTChoice->addItems(set_combox_items);
-    ui_.RBChoice->addItems(set_combox_items);
-
     ui_.LTChoice->setCurrentIndex(static_cast<int>(TextChoice::kModel));
+    ui_.LTWeight->addItems(font_weight_items);
+    ui_.LTWeight->setCurrentIndex(5);
+
+    ui_.LBChoice->addItems(set_combox_items);
     ui_.LBChoice->setCurrentIndex(static_cast<int>(TextChoice::kLensModel));
+    ui_.LBWeight->addItems(font_weight_items);
+    ui_.LBWeight->setCurrentIndex(2);
+
+    ui_.RTChoice->addItems(set_combox_items);
     ui_.RTChoice->setCurrentIndex(static_cast<int>(TextChoice::kExposureParam));
+    ui_.RTWeight->addItems(font_weight_items);
+    ui_.RTWeight->setCurrentIndex(5);
+
+    ui_.RBChoice->addItems(set_combox_items);
     ui_.RBChoice->setCurrentIndex(static_cast<int>(TextChoice::kData));
+    ui_.RBWeight->addItems(font_weight_items);
+    ui_.RBWeight->setCurrentIndex(2);
 
     connect(ui_.LTChoice, &QComboBox::currentIndexChanged,
             this, [this](int x) { OnComboBoxChanged(x, ui_.LTEdit); });
@@ -75,7 +98,7 @@ mainWidgets::mainWidgets(QWidget * parent)
             this, [this](int x) { OnComboBoxChanged(x, ui_.RBEdit); });
 
     cb_ = [this](int cur, int failed, int total, bool done)
-        {
+    {
         MainWidgetsProgressCallback(cur, failed, total, done);
     };
 }
@@ -89,32 +112,29 @@ void mainWidgets::OnStartBtnClick()
     p.border_ratio = ui_.boxSizeComboBox->value();
     p.logo = ui_.logoComboBox->currentText().toStdString();
     p.add_frame = ui_.addFrameCheckBox->checkState() == Qt::Checked;
+    p.auto_align = ui_.autoAlignCheckBox->checkState() == Qt::Checked;
 
     auto & lt_setting = p.text_settings[TextPosition::kLeftTop];
-    lt_setting.bold = ui_.LTBold->isChecked();
     lt_setting.text_type = static_cast<TextChoice>(ui_.LTChoice->currentIndex());
-    lt_setting.weight = static_cast<QFont::Weight>(ui_.LTWeight->currentIndex());
+    lt_setting.weight = GetFontWeight(ui_.LTWeight);
     if (lt_setting.text_type == TextChoice::kCustomString)
         lt_setting.custom_data = ui_.LTEdit->text();
 
     auto & rt_setting = p.text_settings[TextPosition::kRightTop];
-    rt_setting.bold = ui_.RTBold->isChecked();
     rt_setting.text_type = static_cast<TextChoice>(ui_.RTChoice->currentIndex());
-    rt_setting.weight = static_cast<QFont::Weight>(ui_.RTWeight->currentIndex());
+    rt_setting.weight = GetFontWeight(ui_.RTWeight);
     if (rt_setting.text_type == TextChoice::kCustomString)
         rt_setting.custom_data = ui_.RTEdit->text();
 
     auto & lb_setting = p.text_settings[TextPosition::kLeftBottom];
-    lb_setting.bold = ui_.LBBold->isChecked();
     lb_setting.text_type = static_cast<TextChoice>(ui_.LBChoice->currentIndex());
-    lb_setting.weight = static_cast<QFont::Weight>(ui_.LBWeight->currentIndex());
+    lb_setting.weight = GetFontWeight(ui_.LBWeight);
     if (lb_setting.text_type == TextChoice::kCustomString)
         lb_setting.custom_data = ui_.LBEdit->text();
 
     auto & rb_setting = p.text_settings[TextPosition::kRightBottom];
-    rb_setting.bold = ui_.RBBold->isChecked();
     rb_setting.text_type = static_cast<TextChoice>(ui_.RBChoice->currentIndex());
-    rb_setting.weight = static_cast<QFont::Weight>(ui_.RBWeight->currentIndex());
+    rb_setting.weight = GetFontWeight(ui_.RBWeight);
     if (rb_setting.text_type == TextChoice::kCustomString)
         rb_setting.custom_data = ui_.RBEdit->text();
 
@@ -131,13 +151,15 @@ void mainWidgets::OnStartBtnClick()
 
 void mainWidgets::OnInputBtnClick()
 {
-    QString dir_name = QFileDialog::getExistingDirectory(this, QStringLiteral("选择输入文件夹"));
+    QString dir_name = QFileDialog::getExistingDirectory(this, QStringLiteral("选择输入文件夹"),
+                                                         ".", QFileDialog::DontUseNativeDialog);
     ui_.lnputEdit->setText(dir_name);
 }
 
 void mainWidgets::OnOutputBtnClick()
 {
-    QString dir_name = QFileDialog::getExistingDirectory(this, QStringLiteral("选择输出文件夹"));
+    QString dir_name = QFileDialog::getExistingDirectory(this, QStringLiteral("选择输出文件夹"),
+                                                         ".", QFileDialog::DontUseNativeDialog);
     ui_.outputEdit->setText(dir_name);
 }
 
@@ -172,4 +194,20 @@ void mainWidgets::MainWidgetsProgressCallback(int cur, int failed, int total, bo
         return;
     }
     processComplete(total, failed);
+}
+
+int mainWidgets::GetFontWeight(const QComboBox * combo)
+{
+    QString string = combo->currentText();
+    int size = static_cast<int>(font_weight_items.length());
+    for (int i = 0; i < size; ++i)
+    {
+        if (font_weight_items[i] == string)
+            return (i + 1) * 100;
+    }
+    bool ok = false;
+    int weight = string.toInt(&ok);
+    if (!ok)
+        return 400;
+    return weight;
 }

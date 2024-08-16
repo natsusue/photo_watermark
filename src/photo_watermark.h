@@ -36,6 +36,7 @@ using WaterMarkParam = struct WaterMarkParam
     QFont font;
     double border_ratio = 0.02; // border pixel size = ImageWidth * border_ratio
     bool add_frame = true;
+    bool auto_align = false;
     std::string logo;
     TextChoice left_top_choice = TextChoice::kModel;
     std::string left_top_custom;
