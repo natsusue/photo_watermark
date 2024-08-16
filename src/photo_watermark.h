@@ -5,9 +5,9 @@
 #include <string>
 #include <thread>
 #include <functional>
-#include <Qstring>
 #include <map>
 #include <QFont>
+#include <Qstring>
 
 #include "exif.h"
 
@@ -25,8 +25,7 @@ using TextSetting = struct TextSetting
 {
     TextChoice text_type;
     QString custom_data;
-    QFont::Weight weight;
-    bool bold;
+    int weight;
 };
 
 using WaterMarkParam = struct WaterMarkParam
@@ -38,14 +37,7 @@ using WaterMarkParam = struct WaterMarkParam
     bool add_frame = true;
     bool auto_align = false;
     std::string logo;
-    TextChoice left_top_choice = TextChoice::kModel;
-    std::string left_top_custom;
-    TextChoice right_top_choice = TextChoice::kExposureParam;
-    std::string right_top_custom;
-    TextChoice left_bottom_choice = TextChoice::kLensModel;
-    std::string left_bottom_custom;
-    TextChoice right_bottom_choice = TextChoice::kData;
-    std::string right_bottom_custom;
+    std::map<TextPosition, TextSetting> text_settings;
 };
 
 class PhotoWaterMarkWork
@@ -66,22 +58,16 @@ protected:
 
     bool LoadLogos();
 
-    QString genText(TextChoice & choice, easyexif::EXIFInfo & exif);
+    QString genText(const TextChoice & choice, easyexif::EXIFInfo & exif);
 
-    void PaintLeftTop(QPainter * painter, QString & str, QFontMetrics * fm,
-                      int source_height, int box_size) const;
+    void PaintLeft(QPainter * painter, easyexif::EXIFInfo & exif,
+                   int draw_x, int watermark_height, int board_size);
 
-    int PaintRightTop(QPainter * painter, QString & str, QFontMetrics * fm,
-                      int width, int source_height, int box_size) const;
+    void PaintRight(QPainter * painter, easyexif::EXIFInfo & exif,
+                    int image_width, int watermark_height, int board_size);
 
-    void PaintLeftBottom(QPainter * painter, QString & str, QFontMetrics * fm,
-                         int source_height, int ex_padding, int box_size) const;
-
-    void PaintRightBottom(QPainter * painter, QString & str, QFontMetrics * fm,
-                          int source_height, int ex_padding, int left_padding, int box_size) const;
-
-    void PaintLogo(QPainter * painter, const QString & file_path,
-                   int source_height, int font_box_height, int font_box_left, int box_size) const;
+    void PaintLogo(QPainter * painter, easyexif::EXIFInfo & exif,
+                   int font_box_height, int font_box_left, int board_size);
 
 private:
     progress_callback cb_ = nullptr;

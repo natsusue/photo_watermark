@@ -22,7 +22,8 @@ signals:
 protected:
     void MainWidgetsProgressCallback(int cur, int failed, int total, bool done);
 
-    int mainWidgets::GetFontWeight(const QComboBox * combo);
+    static int GetFontWeight(const QComboBox * combo);
+
 private:
     Ui::mainWidgets ui_;
 
