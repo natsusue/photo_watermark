@@ -5,11 +5,12 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <QImage>
 #include <QImageReader>
 #include <QPainter>
 #include <QDebug>
 #include <QBuffer>
+#include <QLabel>
+#include <QVBoxLayout>
 
 #if defined(WIN32) || defined(_WIN32)
 #ifndef strcasecmp
@@ -135,7 +136,6 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
         qWarning() << "Open " << image_path.c_str() << "failed.";
         return false;
     }
-    //std::string image_data;
     ifs.seekg(0, std::ios::end);
     const qsizetype file_size = ifs.tellg();
     QByteArray image_data(file_size, 0);
@@ -150,7 +150,8 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
 
     easyexif::EXIFInfo exif;
     exif.clear();
-    if (PARSE_EXIF_SUCCESS != exif.parseFrom(reinterpret_cast<unsigned char *>(image_data.data()), static_cast<unsigned>(file_size)))
+    if (PARSE_EXIF_SUCCESS != exif.parseFrom(reinterpret_cast<unsigned char *>(image_data.data()),
+                                             static_cast<unsigned>(file_size)))
     {
         qWarning() << "Parse " << image_path.c_str() << " exif failed.";
         return false;
@@ -171,19 +172,22 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
 
     // 新建图片
     //TODO 若横竖比过大, 可能导致比例失调
-    int border_size = static_cast<int>(static_cast<float>(std::max(source_img.width(), source_img.height()) * param_.border_ratio));
+    int border_size = static_cast<int>(static_cast<float>(
+        std::max(source_img.width(), source_img.height()) * param_.border_ratio));
     int new_image_width = 0;
     int new_image_height = 0;
+    int watermark_height = 4 * border_size;
     if (param_.add_frame)
     {
         new_image_width = static_cast<int>(source_img.width() + 2 * border_size);
-        new_image_height = static_cast<int>(source_img.height() + 5 * border_size);
+        new_image_height = static_cast<int>(source_img.height() + watermark_height + border_size);
     }
     else
     {
         new_image_width = source_img.width();
-        new_image_height = source_img.height() + 4 * border_size;
+        new_image_height = source_img.height() + watermark_height;
     }
+
     QImage img(new_image_width, new_image_height, QImage::Format_ARGB32);
     img.fill(QColor(255, 255, 255));
 
@@ -194,74 +198,12 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
     else
         img_painter.drawImage(0, 0, source_img);
 
-    // 第一行通用设置
-    param_.font.setPixelSize(border_size * 0.75);
-    param_.font.setBold(true);
-    param_.font.setWeight(QFont::Medium);
-    img_painter.setFont(param_.font);
-    img_painter.setPen(QColor(33, 33, 33));
-    QFontMetrics first_fm(param_.font);
+    int watermark_y = param_.add_frame ? border_size + source_img.height() : source_img.size().height();
+    int left_draw_x = param_.add_frame ? 2 * border_size : border_size;
 
-    // 左上
-    QString left_top_text;
-    if (param_.left_top_choice != TextChoice::kCustomString)
-        left_top_text = genText(param_.left_top_choice, exif);
-    else
-        left_top_text = QString::fromStdString(param_.left_top_custom);
-    PaintLeftTop(&img_painter, left_top_text, &first_fm, source_img.height(), border_size);
-
-    // 右上
-    QString right_top_text;
-    if (param_.right_top_choice != TextChoice::kCustomString)
-        right_top_text = genText(param_.right_top_choice, exif);
-    else
-        right_top_text = QString::fromStdString(param_.right_top_custom);
-    int r_left_padding = PaintRightTop(&img_painter, right_top_text, &first_fm,
-                                       img.width(), source_img.height(), border_size);
-
-    // 第二行通用设置
-    param_.font.setPixelSize(border_size * 0.7);
-    param_.font.setBold(false);
-    param_.font.setWeight(QFont::Weight::Light);
-    img_painter.setFont(param_.font);
-    img_painter.setPen(QColor(114, 114, 114));
-    QFontMetrics second_fm(param_.font);
-    int ex_padding = 1.2 * first_fm.height();
-
-    // 左下
-    QString left_bottom_text;
-    if (param_.left_bottom_choice != TextChoice::kCustomString)
-        left_bottom_text = genText(param_.left_bottom_choice, exif);
-    else
-        left_bottom_text = QString::fromStdString(param_.left_bottom_custom);
-    PaintLeftBottom(&img_painter, left_bottom_text, &second_fm, source_img.height(), ex_padding, border_size);
-
-    // 右下
-    QString right_bottom_text;
-    if (param_.right_bottom_choice != TextChoice::kCustomString)
-        right_bottom_text = genText(param_.right_bottom_choice, exif);
-    else
-        right_bottom_text = QString::fromStdString(param_.right_bottom_custom);
-    PaintRightBottom(&img_painter, right_bottom_text, &second_fm,
-                     source_img.height(), ex_padding, r_left_padding, border_size);
-
-    // logo 和 线
-    int font_height = ex_padding + second_fm.height();
-    std::string logo_choice = exif.Make;
-    if (param_.logo != "Auto" && !param_.logo.empty())
-        logo_choice = param_.logo;
-    if (!logo_choice.empty())
-    {
-        auto found = std::find_if(logo_map_.begin(), logo_map_.end(),
-                                  [&exif, &logo_choice](const std::pair<std::string, std::string> & ele)-> bool
-                                  {
-                                      return 0 == strncasecmp(logo_choice.c_str(), ele.first.c_str(),
-                                                              std::min(logo_choice.size(), ele.first.size()));
-                                  });
-        if (found != logo_map_.end())
-            PaintLogo(&img_painter, found->second.c_str(), source_img.height(), font_height, r_left_padding, border_size);
-    }
-   
+    img_painter.translate(0, watermark_y);
+    PaintLeft(&img_painter, exif, left_draw_x, watermark_height, border_size);
+    PaintRight(&img_painter, exif, new_image_width, watermark_height, border_size);
     img_painter.end();
 
     std::filesystem::path out_file(param_.output_path);
@@ -288,7 +230,7 @@ bool PhotoWaterMarkWork::LoadLogos()
     return true;
 }
 
-QString PhotoWaterMarkWork::genText(TextChoice & choice, easyexif::EXIFInfo & exif)
+QString PhotoWaterMarkWork::genText(const TextChoice & choice, easyexif::EXIFInfo & exif)
 {
     QString ss;
     int num = static_cast<int>(1.0 / exif.ExposureTime);
@@ -306,115 +248,110 @@ QString PhotoWaterMarkWork::genText(TextChoice & choice, easyexif::EXIFInfo & ex
         break;
     case TextChoice::kData:
         ss = QString(exif.DateTime.c_str());
+        break;
+    default:
+        ss = param_.auto_align ? "" : "&nbsp;";
     }
     return ss;
 }
 
-void PhotoWaterMarkWork::PaintLeftTop(QPainter * painter, QString & str, QFontMetrics * fm,
-                                      int source_height, int box_size) const
+void PhotoWaterMarkWork::PaintLeft(QPainter * painter, easyexif::EXIFInfo & exif,
+                                   int draw_x, int watermark_height, int board_size)
 {
-    int left_padding = 0;
-    int top_padding = 0;
-    if (param_.add_frame)
-    {
-        left_padding = box_size * 2;
-        top_padding = 2 * box_size + source_height;
-    }
-    else
-    {
-        left_padding = box_size;
-        top_padding = box_size + source_height;
-    }
-    QRect r = fm->boundingRect(QRect(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignTop, str);
-    r.setRect(left_padding, top_padding, r.size().width(), r.size().height());
-    painter->drawText(r, Qt::AlignLeft | Qt::AlignTop, str);
+    const auto & lt = param_.text_settings[TextPosition::kLeftTop];
+    const auto & lb = param_.text_settings[TextPosition::kLeftBottom];
+
+    if (lt.text_type == TextChoice::kNone && lb.text_type == TextChoice::kNone)
+        return;
+
+    QString text;
+    // LT
+    text.append(QString(
+                        "<p style=';line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
+                .arg(static_cast<int>(board_size * 0.75)).arg(lt.weight).arg(genText(lt.text_type, exif)));
+    // LB
+    text.append(QString(
+                        "<p style=';line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
+                .arg(static_cast<int>(board_size * 0.7)).arg(lb.weight).arg(genText(lb.text_type, exif)));
+
+    QTextDocument td;
+    td.setDefaultFont(param_.font);
+    td.setDefaultTextOption(QTextOption(Qt::AlignVCenter | Qt::AlignLeft));
+    td.setHtml(text);
+    QPoint to_point(draw_x, watermark_height / 2 - td.size().toSize().height() / 2);
+    qDebug() << to_point;
+    painter->translate(to_point);
+    td.drawContents(painter);
+    painter->translate(QPoint(0, 0) - to_point);
 }
 
-int PhotoWaterMarkWork::PaintRightTop(QPainter * painter, QString & str, QFontMetrics * fm,
-                                      int width, int source_height, int box_size) const
+void PhotoWaterMarkWork::PaintRight(QPainter * painter, easyexif::EXIFInfo & exif,
+                                    int image_width, int watermark_height, int board_size)
 {
-    int left_padding = 0;
-    int top_padding = 0;
-    if (param_.add_frame)
+    const auto & rt = param_.text_settings[TextPosition::kRightTop];
+    const auto & rb = param_.text_settings[TextPosition::kRightBottom];
+
+    int draw_x = image_width - (param_.add_frame ? 2 * board_size : board_size);
+    int text_height = 0;
+    if (rt.text_type != TextChoice::kNone ||
+        rb.text_type != TextChoice::kNone)
     {
-        left_padding = width - 2 * box_size;
-        top_padding = 2 * box_size + source_height;
-    }
-    else
-    {
-        left_padding = width - box_size;
-        top_padding = box_size + source_height;
+        QString text;
+        // RT
+        text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
+                    .arg(static_cast<int>(board_size * 0.75)).arg(rt.weight).arg(genText(rt.text_type, exif)));
+        // RB
+        text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
+                    .arg(static_cast<int>(board_size * 0.7)).arg(rb.weight).arg(genText(rb.text_type, exif)));
+
+        QTextDocument td;
+        td.setDefaultFont(param_.font);
+        td.setDefaultTextOption(QTextOption(Qt::AlignVCenter | Qt::AlignLeft));
+        td.setHtml(text);
+        draw_x -= td.size().toSize().width();
+        text_height = td.size().toSize().height();
+        QPoint to_point(draw_x, watermark_height / 2 - text_height / 2);
+        painter->translate(to_point);
+        qDebug() << to_point;
+        qDebug() << td.size().toSize();
+        td.drawContents(painter);
+        painter->translate(QPoint(0, 0) - to_point);
     }
 
-    QRect r = fm->boundingRect(QRect(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignTop, str);
-    left_padding -= r.width();
-    r.setRect(left_padding, top_padding, r.size().width(), r.size().height());
-    painter->drawText(r, Qt::AlignLeft | Qt::AlignTop, str);
-    return left_padding;
+    PaintLogo(painter, exif, text_height, draw_x, board_size);
 }
 
-void PhotoWaterMarkWork::PaintLeftBottom(QPainter * painter, QString & str, QFontMetrics * fm, int source_height,
-                                         int ex_padding, int box_size) const
+void PhotoWaterMarkWork::PaintLogo(QPainter * painter, easyexif::EXIFInfo & exif,
+                                   int font_box_height, int font_box_left, int board_size)
 {
-    int left_padding = 0;
-    int top_padding = 0;
+    std::string logo_choice = exif.Make;
+    if (param_.logo != "Auto" && !param_.logo.empty())
+        logo_choice = param_.logo;
+    if (logo_choice.empty())
+        return;
 
-    if (param_.add_frame)
-    {
-        left_padding = 2 * box_size;
-        top_padding = 2 * box_size + source_height + ex_padding;
-    }
-    else
-    {
-        left_padding = box_size;
-        top_padding = box_size + source_height + ex_padding;
-    }
-
-    QRect r = fm->boundingRect(QRect(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignTop, str);
-    r.setRect(left_padding, top_padding, r.size().width(), r.size().height());
-    painter->drawText(r, Qt::AlignLeft | Qt::AlignTop, str);
-}
-
-void PhotoWaterMarkWork::PaintRightBottom(QPainter * painter, QString & str, QFontMetrics * fm, int source_height,
-                                          int ex_padding, int left_padding, int box_size) const
-{
-    int top_padding = 2 * box_size + source_height + ex_padding;
-    if (param_.add_frame)
-        top_padding = 2 * box_size + source_height + ex_padding;
-    else
-        top_padding = box_size + source_height + ex_padding;
-
-    QRect r = fm->boundingRect(QRect(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignTop, str);
-    r.setRect(left_padding, top_padding, r.size().width(), r.size().height());
-    qDebug() << "Right Bottom" << r;
-    painter->drawText(r, Qt::AlignLeft | Qt::AlignTop, str);
-}
-
-void PhotoWaterMarkWork::PaintLogo(QPainter * painter, const QString & file_path,
-                                   int source_height, int font_box_height, int font_box_left, int box_size) const
-{
-    QImageReader image_reader(file_path);
+    auto found = std::ranges::find_if(logo_map_,
+                                      [&exif, &logo_choice](const std::pair<std::string, std::string> & ele)-> bool
+                                      {
+                                          return 0 == strncasecmp(logo_choice.c_str(), ele.first.c_str(),
+                                                                  std::min(logo_choice.size(), ele.first.size()));
+                                      });
+    if (found == logo_map_.end())
+        return;
+    QImageReader image_reader(found->second.c_str());
     image_reader.setAutoTransform(true);
-    QImage img = image_reader.read();
+    QImage logo = image_reader.read();
 
-    int img_h = static_cast<int>(font_box_height * 0.85);
-    int img_w = img.scaledToHeight(img_h).width();
-    int top_padding = 0;
-    int left_padding = font_box_left - 0.9 * box_size - img_w;
-
-    if (param_.add_frame)
-        top_padding = source_height + (2 * box_size) + (font_box_height / 2) - (img_h / 2);
-    else
-        top_padding = source_height + box_size + (font_box_height / 2) - (img_h / 2);
-    painter->drawImage(left_padding, top_padding, img.scaled(img_w, img_h, Qt::KeepAspectRatio));
-
-    painter->setPen(QPen(QColor(204, 204, 204), box_size * 0.1));
-    int y = 0;
-    if (param_.add_frame)
-        y = source_height + 2 * box_size;
-    else
-        y = source_height + box_size;
-
-    painter->drawLine(font_box_left - 0.5 * box_size, y - font_box_height * 0.1,
-                      font_box_left - 0.5 * box_size, y + font_box_height * 1.1);
+    int img_h = font_box_height == 0 ? board_size * 2 : static_cast<int>(font_box_height * 0.9);
+    int img_w = logo.scaledToHeight(img_h).width();
+    int left_padding = font_box_left - 0.9 * board_size - img_w;
+    int top_padding = 2 * board_size - img_h / 2;
+    painter->drawImage(left_padding, top_padding, logo.scaled(img_w, img_h, Qt::KeepAspectRatio));
+    // 如果右边没字就不画这根线
+    if (font_box_height > 0)
+    {
+        painter->setPen(QPen(QColor(204, 204, 204), board_size * 0.1));
+        painter->drawLine(font_box_left - board_size / 2, 2 * board_size - font_box_height * 0.52,
+                          font_box_left - board_size / 2, 2 * board_size + font_box_height * 0.52);
+    }
 }
