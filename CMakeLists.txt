@@ -23,6 +23,10 @@ FILE(GLOB_RECURSE SOURCES "src/*.h" "src/*.cpp")
 
 ADD_EXECUTABLE (photo_watermark ${SOURCES} ${3RDPARTY_SOURCE})
 
+IF(CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_HOST_WIN32)
+  set_property(TARGET photo_watermark PROPERTY WIN32_EXECUTABLE true)
+endif()
+
 TARGET_LINK_LIBRARIES(photo_watermark PRIVATE 
                       Qt6::Core
                       Qt6::Gui

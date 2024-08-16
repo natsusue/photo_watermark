@@ -7,7 +7,6 @@
 #include <fstream>
 #include <QImageReader>
 #include <QPainter>
-#include <QDebug>
 #include <QBuffer>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -279,7 +278,6 @@ void PhotoWaterMarkWork::PaintLeft(QPainter * painter, easyexif::EXIFInfo & exif
     td.setDefaultTextOption(QTextOption(Qt::AlignVCenter | Qt::AlignLeft));
     td.setHtml(text);
     QPoint to_point(draw_x, watermark_height / 2 - td.size().toSize().height() / 2);
-    qDebug() << to_point;
     painter->translate(to_point);
     td.drawContents(painter);
     painter->translate(QPoint(0, 0) - to_point);
@@ -312,8 +310,6 @@ void PhotoWaterMarkWork::PaintRight(QPainter * painter, easyexif::EXIFInfo & exi
         text_height = td.size().toSize().height();
         QPoint to_point(draw_x, watermark_height / 2 - text_height / 2);
         painter->translate(to_point);
-        qDebug() << to_point;
-        qDebug() << td.size().toSize();
         td.drawContents(painter);
         painter->translate(QPoint(0, 0) - to_point);
     }
