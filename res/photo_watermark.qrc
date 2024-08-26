@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/photo_watermark">
+        <file>img/file.png</file>
+        <file>img/arrow-down.png</file>
+        <file>img/arrow-up.png</file>
+    </qresource>
+</RCC>

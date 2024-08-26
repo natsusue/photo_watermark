@@ -20,8 +20,10 @@ FILE(GLOB_RECURSE 3RDPARTY_SOURCE 3rdparty/easyexif/exif.cpp
                                   3rdparty/easyexif/exif.h)
 
 FILE(GLOB_RECURSE SOURCES "src/*.h" "src/*.cpp")
+FILE(GLOB_RECURSE QRC_SOURCE_FILES "res/*.qrc")
+qt_add_resources(RESOURCE_FILES ${QRC_SOURCE_FILES})
 
-ADD_EXECUTABLE (photo_watermark ${SOURCES} ${3RDPARTY_SOURCE})
+ADD_EXECUTABLE (photo_watermark ${RESOURCE_FILES} ${SOURCES} ${3RDPARTY_SOURCE})
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_HOST_WIN32)
   set_property(TARGET photo_watermark PROPERTY WIN32_EXECUTABLE true)
