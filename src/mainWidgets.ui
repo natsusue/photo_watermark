@@ -672,7 +672,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="cursorWidth">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="placeholderText">
           <string>例: &quot;Nikon Z9&quot; 若需要编辑请选择自定义字符串模式 </string>
