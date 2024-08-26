@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ui_mainWidgets.h"
 #include "photo_watermark.h"
+#include <QTextEdit>
 
 class mainWidgets :public QWidget
 {
@@ -12,7 +13,7 @@ public slots:
     void OnStartBtnClick();
     void OnInputBtnClick();
     void OnOutputBtnClick();
-    void OnComboBoxChanged(int index, QLineEdit * edit);
+    void OnComboBoxChanged(int index, QTextEdit * edit);
 
     void OnProcessComplete(int total, int failed);
 
@@ -21,7 +22,9 @@ signals:
 
 protected:
     void MainWidgetsProgressCallback(int cur, int failed, int total, bool done);
+    bool eventFilter(QObject * object, QEvent * event);
 
+    void setComboBoxTextAlignCenterAndBorderRadius(QComboBox * combo);
     static int GetFontWeight(const QComboBox * combo);
 
 private:
