@@ -43,8 +43,8 @@ mainWidgets::mainWidgets(QWidget * parent)
     connect(this, &mainWidgets::processComplete, this, &mainWidgets::OnProcessComplete);
 
     // 初始配置初始化
-
     ui_.boxSizeComboBox->setValue(0.02);
+    ui_.boxSizeComboBox->setSingleStep(0.01);
 
     ui_.logoComboBox->setView(new QListView());
     ui_.logoComboBox->addItem(QStringLiteral("Auto"));
