@@ -23,9 +23,9 @@ using TextPosition = enum class TextPosition
 
 using TextSetting = struct TextSetting
 {
-    TextChoice text_type;
+    TextType text_type = TextType::kNone;
     QString custom_data;
-    int weight;
+    int weight = 0;
 };
 
 using WaterMarkParam = struct WaterMarkParam
@@ -58,7 +58,7 @@ protected:
 
     bool LoadLogos();
 
-    QString genText(const TextChoice & choice, easyexif::EXIFInfo & exif);
+    QString genText(const TextType & choice, easyexif::EXIFInfo & exif) const;
 
     void PaintLeft(QPainter * painter, easyexif::EXIFInfo & exif,
                    int draw_x, int watermark_height, int board_size);

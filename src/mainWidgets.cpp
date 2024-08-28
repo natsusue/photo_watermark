@@ -16,7 +16,9 @@ static QStringList set_combox_items = {
     QStringLiteral("镜头型号"),
     QStringLiteral("拍摄参数"),
     QStringLiteral("拍摄时间"),
-    QStringLiteral("自定义字符串")
+    QStringLiteral("位置信息"),
+    QStringLiteral("自定义字符串"),
+    QStringLiteral("HTML富文本")
 };
 
 static QStringList font_weight_items = {
@@ -71,24 +73,24 @@ mainWidgets::mainWidgets(QWidget * parent)
 
     ui_.LTChoice->setView(new QListView());
     ui_.LTChoice->addItems(set_combox_items);
-    ui_.LTChoice->setCurrentIndex(static_cast<int>(TextChoice::kModel));
+    ui_.LTChoice->setCurrentIndex(static_cast<int>(TextType::kModel));
     ui_.LTWeight->addItems(font_weight_items);
     ui_.LTWeight->setCurrentIndex(5);
     ui_.LBChoice->setView(new QListView());
     ui_.LBChoice->addItems(set_combox_items);
-    ui_.LBChoice->setCurrentIndex(static_cast<int>(TextChoice::kLensModel));
+    ui_.LBChoice->setCurrentIndex(static_cast<int>(TextType::kLensModel));
     ui_.LBWeight->addItems(font_weight_items);
     ui_.LBWeight->setCurrentIndex(2);
 
     ui_.RTChoice->setView(new QListView());
     ui_.RTChoice->addItems(set_combox_items);
-    ui_.RTChoice->setCurrentIndex(static_cast<int>(TextChoice::kExposureParam));
+    ui_.RTChoice->setCurrentIndex(static_cast<int>(TextType::kExposureParam));
     ui_.RTWeight->addItems(font_weight_items);
     ui_.RTWeight->setCurrentIndex(5);
 
     ui_.RBChoice->setView(new QListView());
     ui_.RBChoice->addItems(set_combox_items);
-    ui_.RBChoice->setCurrentIndex(static_cast<int>(TextChoice::kData));
+    ui_.RBChoice->setCurrentIndex(static_cast<int>(TextType::kData));
     ui_.RBWeight->addItems(font_weight_items);
     ui_.RBWeight->setCurrentIndex(2);
 
@@ -139,27 +141,27 @@ void mainWidgets::OnStartBtnClick()
     p.auto_align = ui_.autoAlignCheckBox->checkState() == Qt::Checked;
 
     auto & lt_setting = p.text_settings[TextPosition::kLeftTop];
-    lt_setting.text_type = static_cast<TextChoice>(ui_.LTChoice->currentIndex());
+    lt_setting.text_type = static_cast<TextType>(ui_.LTChoice->currentIndex());
     lt_setting.weight = GetFontWeight(ui_.LTWeight);
-    if (lt_setting.text_type == TextChoice::kCustomString)
+    if (lt_setting.text_type == TextType::kCustomString)
         lt_setting.custom_data = ui_.LTEdit->toPlainText();
 
     auto & rt_setting = p.text_settings[TextPosition::kRightTop];
-    rt_setting.text_type = static_cast<TextChoice>(ui_.RTChoice->currentIndex());
+    rt_setting.text_type = static_cast<TextType>(ui_.RTChoice->currentIndex());
     rt_setting.weight = GetFontWeight(ui_.RTWeight);
-    if (rt_setting.text_type == TextChoice::kCustomString)
+    if (rt_setting.text_type == TextType::kCustomString)
         rt_setting.custom_data = ui_.RTEdit->toPlainText();
 
     auto & lb_setting = p.text_settings[TextPosition::kLeftBottom];
-    lb_setting.text_type = static_cast<TextChoice>(ui_.LBChoice->currentIndex());
+    lb_setting.text_type = static_cast<TextType>(ui_.LBChoice->currentIndex());
     lb_setting.weight = GetFontWeight(ui_.LBWeight);
-    if (lb_setting.text_type == TextChoice::kCustomString)
+    if (lb_setting.text_type == TextType::kCustomString)
         lb_setting.custom_data = ui_.LBEdit->toPlainText();
 
     auto & rb_setting = p.text_settings[TextPosition::kRightBottom];
-    rb_setting.text_type = static_cast<TextChoice>(ui_.RBChoice->currentIndex());
+    rb_setting.text_type = static_cast<TextType>(ui_.RBChoice->currentIndex());
     rb_setting.weight = GetFontWeight(ui_.RBWeight);
-    if (rb_setting.text_type == TextChoice::kCustomString)
+    if (rb_setting.text_type == TextType::kCustomString)
         rb_setting.custom_data = ui_.RBEdit->toPlainText();
 
     work_.Clean();
@@ -192,7 +194,7 @@ void mainWidgets::OnComboBoxChanged(int index, QTextEdit * edit)
     if (nullptr == edit)
         return;
 
-    if (index == static_cast<int>(TextChoice::kCustomString))
+    if (index == static_cast<int>(TextType::kCustomString) || index == static_cast<int>(TextType::KRichText))
     {
         edit->setEnabled(true);
         edit->clear();
