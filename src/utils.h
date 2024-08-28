@@ -1,14 +1,16 @@
 ﻿#pragma once
 #include <filesystem>
 
-using TextChoice = enum class TextChoice
+using TextType = enum class TextType
 {
     kNone = 0,
     kModel,
     kLensModel,
     kExposureParam,
     kData,
+    kGps,
     kCustomString,
+    KRichText,
     kMax
 };
 

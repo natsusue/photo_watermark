@@ -229,26 +229,41 @@ bool PhotoWaterMarkWork::LoadLogos()
     return true;
 }
 
-QString PhotoWaterMarkWork::genText(const TextChoice & choice, easyexif::EXIFInfo & exif)
+QString PhotoWaterMarkWork::genText(const TextType & choice, easyexif::EXIFInfo & exif) const
 {
     QString ss;
     int num = static_cast<int>(1.0 / exif.ExposureTime);
     switch (choice)
     {
-    case TextChoice::kModel:
+    case TextType::kModel:
         ss = QString(exif.Model.c_str());
         break;
-    case TextChoice::kLensModel:
+    case TextType::kLensModel:
         ss = QString(exif.LensInfo.Model.c_str());
         break;
-    case TextChoice::kExposureParam:
+    case TextType::kExposureParam:
         ss = QString::asprintf("%dmm ISO%d 1/%d f/%.1lf", exif.FocalLengthIn35mm,
                                exif.ISOSpeedRatings, num, exif.FNumber);
         break;
-    case TextChoice::kData:
+    case TextType::kData:
         ss = QString(exif.DateTime.c_str());
         break;
+    case TextType::kGps:
+    {
+        const auto & longitude = exif.GeoLocation.LonComponents;
+        const auto & latitude = exif.GeoLocation.LatComponents;
+        ss = QString::asprintf("%d°%d'%d\"%c %d°%d'%d\"%c",
+                               static_cast<int>(latitude.degrees), static_cast<int>(latitude.minutes),
+                               static_cast<int>(latitude.seconds), latitude.direction,
+                               static_cast<int>(longitude.degrees), static_cast<int>(longitude.minutes),
+                               static_cast<int>(longitude.seconds), longitude.direction);
+        break;
+    }
     default:
+        return param_.auto_align ? "" : "&nbsp;";
+    }
+    if (ss.isEmpty())
+    {
         ss = param_.auto_align ? "" : "&nbsp;";
     }
     return ss;
@@ -260,18 +275,24 @@ void PhotoWaterMarkWork::PaintLeft(QPainter * painter, easyexif::EXIFInfo & exif
     const auto & lt = param_.text_settings[TextPosition::kLeftTop];
     const auto & lb = param_.text_settings[TextPosition::kLeftBottom];
 
-    if (lt.text_type == TextChoice::kNone && lb.text_type == TextChoice::kNone)
+    if (lt.text_type == TextType::kNone && lb.text_type == TextType::kNone)
         return;
 
     QString text;
     // LT
-    text.append(QString(
-                        "<p style=';line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
-                .arg(static_cast<int>(board_size * 0.75)).arg(lt.weight).arg(genText(lt.text_type, exif)));
+    if (lt.text_type != TextType::KRichText)
+        text.append(QString(
+            "<p style=';line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
+            .arg(static_cast<int>(board_size * 0.7)).arg(lt.weight).arg(genText(lt.text_type, exif)));
+    else
+        text.append(lt.custom_data);
     // LB
-    text.append(QString(
-                        "<p style=';line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
-                .arg(static_cast<int>(board_size * 0.7)).arg(lb.weight).arg(genText(lb.text_type, exif)));
+    if (lb.text_type != TextType::KRichText)
+        text.append(QString(
+            "<p style=';line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
+            .arg(static_cast<int>(board_size * 0.65)).arg(lb.weight).arg(genText(lb.text_type, exif)));
+    else
+        text.append(lb.custom_data);
 
     QTextDocument td;
     td.setDefaultFont(param_.font);
@@ -291,16 +312,22 @@ void PhotoWaterMarkWork::PaintRight(QPainter * painter, easyexif::EXIFInfo & exi
 
     int draw_x = image_width - (param_.add_frame ? 2 * board_size : board_size);
     int text_height = 0;
-    if (rt.text_type != TextChoice::kNone ||
-        rb.text_type != TextChoice::kNone)
+    if (rt.text_type != TextType::kNone ||
+        rb.text_type != TextType::kNone)
     {
         QString text;
         // RT
-        text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
-                    .arg(static_cast<int>(board_size * 0.75)).arg(rt.weight).arg(genText(rt.text_type, exif)));
+        if (rt.text_type != TextType::KRichText)
+            text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#323232; font-weight:%2'>%3</span>")\
+                        .arg(static_cast<int>(board_size * 0.7)).arg(rt.weight).arg(genText(rt.text_type, exif)));
+        else
+            text.append(rt.custom_data);
         // RB
-        text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
-                    .arg(static_cast<int>(board_size * 0.7)).arg(rb.weight).arg(genText(rb.text_type, exif)));
+        if (rb.text_type != TextType::KRichText)
+            text.append(QString("<p style='line-height:120%'><span style ='font-size:%1px; color:#505050;font-weight:%2'>%3</span>")\
+                        .arg(static_cast<int>(board_size * 0.65)).arg(rb.weight).arg(genText(rb.text_type, exif)));
+        else
+            text.append(rt.custom_data);
 
         QTextDocument td;
         td.setDefaultFont(param_.font);
