@@ -4,7 +4,7 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main" ]
 
@@ -23,7 +23,7 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest, mac-latest]
+        os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, cl]
         include:
@@ -33,15 +33,10 @@ jobs:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
-          - os: mac-latest
-            c_compiler: gcc
-            cpp_compiler: g++
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: ubuntu-latest
-            c_compiler: cl
-          - os: mac-latest
             c_compiler: cl
 
     steps:
@@ -54,19 +49,33 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Download submodule
+      run: git submodule init && git submodule update
+
     - name: Install Qt
-    - uses: jurplel/install-qt-action@v4.0.0
+      uses: jurplel/install-qt-action@v4.0.0
       with:
         version: 6.7.0
-
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        dir: "${{github.workspace}}/qt"
+    
+    - name: Configure CMake windows
+      if: ${{ matrix.os == 'windows-latest'}}
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DQt6_DIR="${{github.workspace}}\qt\lib\cmake"
+        -S ${{ github.workspace }}
+    
+    - name: Configure CMake ubuntu
+      if: ${{ matrix.os == 'ubuntu-latest'}}
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DQt6_DIR=${{env.QT_ROOT_DIR}}/lib/cmake/Qt6
         -S ${{ github.workspace }}
 
     - name: Build

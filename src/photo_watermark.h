@@ -7,7 +7,7 @@
 #include <functional>
 #include <map>
 #include <QFont>
-#include <Qstring>
+#include <QString>
 
 #include "exif.h"
 
