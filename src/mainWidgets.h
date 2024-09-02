@@ -22,7 +22,7 @@ signals:
 
 protected:
     void MainWidgetsProgressCallback(int cur, int failed, int total, bool done);
-    bool eventFilter(QObject * object, QEvent * event);
+    bool eventFilter(QObject * object, QEvent * event) override;
 
     void setComboBoxTextAlignCenterAndBorderRadius(QComboBox * combo);
     static int GetFontWeight(const QComboBox * combo);
