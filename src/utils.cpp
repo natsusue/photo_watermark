@@ -24,8 +24,7 @@ std::filesystem::path GetSelfPath()
 #elif defined(__APPLE__)
     // 未测试,没mac设备
     uint32_t bufsize = PATH_MAX;
-    if (!_NSGetExecutablePath(path, &bufsize))
-        puts(buf);
+    _NSGetExecutablePath(path, &bufsize);
     return std::string(path);
 #endif
 }
