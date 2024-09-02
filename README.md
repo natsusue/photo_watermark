@@ -2,6 +2,15 @@
 
 <font size=5>**纯C++与Qt实现的照片批量添加可自定义的水印的跨平台gui程序**</font>
 
+支持平台
+* Windows
+* Linux
+* MacOs
+
+[![](https://github.com//natsusue/photo_watermark/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/natsusue/photo_watermark/actions)
+[![](https://badgen.net/github/license/natsusue/photo_watermark?color=green)](LICENSE)
+![](https://badgen.net/github/tag/natsusue/photo_watermark)
+
 ## GUI参考
 
 ![](doc/gui.png)
@@ -32,7 +41,6 @@
 * 更多的自定义功能
 * 更多的样式或支持自定义样式
 * 更好看的ui 感谢[paolidayi](https://github.com/paolidayi)重构了ui
-* 更好的跨平台支持
 
 ## 依赖与许可证
 
