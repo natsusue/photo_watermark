@@ -207,7 +207,7 @@ bool PhotoWaterMarkWork::ImageProcessing(const std::string & image_path)
 
     std::filesystem::path out_file(param_.output_path);
     out_file /= std::filesystem::path(image_path).filename();
-    img.save(QString::fromLocal8Bit(out_file.string().data(), out_file.string().size()));
+    img.save(QString::fromLocal8Bit(out_file.string().data(), out_file.string().size()), "JPG", 100);
 
     return true;
 }
